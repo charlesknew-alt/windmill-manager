@@ -7,7 +7,20 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍺</text></svg>">
   <style>
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-    html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif}
+    html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif;background:#0f1419}
+    .login{position:fixed;inset:0;z-index:200;background:linear-gradient(135deg,#1a365d 0%,#2d3748 100%);display:flex;align-items:center;justify-content:center;transition:opacity .5s}
+    .login.hidden{opacity:0;pointer-events:none}
+    .login-card{background:#1e2538;border:1px solid #2a3450;border-radius:16px;padding:40px 32px;width:90%;max-width:360px;text-align:center}
+    .login-card .icon{font-size:48px;margin-bottom:12px}
+    .login-card h1{color:#fff;font-size:22px;font-weight:300;letter-spacing:1px;margin-bottom:4px}
+    .login-card h2{color:#90cdf4;font-size:12px;font-weight:600;letter-spacing:3px;text-transform:uppercase;margin-bottom:28px}
+    .login-card input{width:100%;padding:14px 16px;border-radius:10px;border:1px solid #2a3450;background:#151b2b;color:#fff;font-size:16px;text-align:center;letter-spacing:4px;outline:none;transition:border-color .2s}
+    .login-card input:focus{border-color:#90cdf4}
+    .login-card input::placeholder{letter-spacing:1px;color:#4a5568}
+    .login-btn{width:100%;padding:14px;border:none;border-radius:10px;background:linear-gradient(135deg,#3182ce,#2b6cb0);color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:16px;transition:opacity .2s}
+    .login-btn:hover{opacity:.9}
+    .error{color:#fc8181;font-size:13px;margin-top:12px;display:none}
+    .error.show{display:block}
     .loader{position:fixed;inset:0;z-index:100;background:linear-gradient(135deg,#1a365d 0%,#2d3748 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s,visibility .6s}
     .loader.hidden{opacity:0;visibility:hidden;pointer-events:none}
     .loader-logo{font-size:48px;margin-bottom:16px}
@@ -16,21 +29,58 @@
     .bar{width:200px;height:3px;background:rgba(255,255,255,.15);border-radius:3px;overflow:hidden}
     .bar::after{content:'';display:block;width:40%;height:100%;background:#90cdf4;border-radius:3px;animation:ld 1.2s ease-in-out infinite}
     @keyframes ld{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
-    iframe{width:100%;height:100%;border:none}
+    iframe{width:100%;height:100%;border:none;display:none}
   </style>
 </head>
 <body>
-  <div class="loader" id="loader">
+  <div class="login" id="login">
+    <div class="login-card">
+      <div class="icon">🍺</div>
+      <h1>The Windmill Inn</h1>
+      <h2>Manager Portal</h2>
+      <input type="password" id="pw" placeholder="Enter PIN" maxlength="6" inputmode="numeric" autocomplete="off">
+      <button class="login-btn" onclick="checkPw()">Sign In</button>
+      <div class="error" id="err">Incorrect PIN</div>
+    </div>
+  </div>
+  <div class="loader hidden" id="loader">
     <div class="loader-logo">🍺</div>
     <h1>The Windmill Inn</h1>
     <h2>Manager Portal</h2>
     <div class="bar"></div>
   </div>
-  <!-- Windmill Paperwork System -->
-  <iframe id="f" src="https://script.google.com/macros/s/AKfycbxgzF9DVJQ2sBPVGMWCfXsaAn5-3SUzWXuURGbu4lE__ccPowt0vWmQKqY43qtyGXgP/exec" allow="clipboard-write" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>
+  <iframe id="f" src="about:blank" allow="clipboard-write" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>
   <script>
-    document.getElementById('f').onload=()=>setTimeout(()=>document.getElementById('loader').classList.add('hidden'),800);
-    setTimeout(()=>document.getElementById('loader').classList.add('hidden'),15000);
+    // SET YOUR PIN HERE
+    var PIN = '1978';
+    var APP_URL = 'https://script.google.com/macros/s/AKfycbxgzF9DVJQ2sBPVGMWCfXsaAn5-3SUzWXuURGbu4lE__ccPowt0vWmQKqY43qtyGXgP/exec';
+
+    if (sessionStorage.getItem('windmill_auth') === 'yes') {
+      document.getElementById('login').classList.add('hidden');
+      loadApp();
+    }
+    document.getElementById('pw').addEventListener('keydown', function(e) { if (e.key === 'Enter') checkPw(); });
+    document.getElementById('pw').focus();
+
+    function checkPw() {
+      if (document.getElementById('pw').value.trim() === PIN) {
+        sessionStorage.setItem('windmill_auth', 'yes');
+        document.getElementById('login').classList.add('hidden');
+        loadApp();
+      } else {
+        document.getElementById('err').classList.add('show');
+        document.getElementById('pw').value = '';
+        document.getElementById('pw').focus();
+      }
+    }
+    function loadApp() {
+      document.getElementById('loader').classList.remove('hidden');
+      var f = document.getElementById('f');
+      f.src = APP_URL;
+      f.style.display = 'block';
+      f.onload = function() { setTimeout(function(){ document.getElementById('loader').classList.add('hidden'); }, 800); };
+      setTimeout(function(){ document.getElementById('loader').classList.add('hidden'); }, 15000);
+    }
   </script>
 </body>
 </html>
