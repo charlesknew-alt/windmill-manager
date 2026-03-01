@@ -30,6 +30,42 @@
     .bar::after{content:'';display:block;width:40%;height:100%;background:#90cdf4;border-radius:3px;animation:ld 1.2s ease-in-out infinite}
     @keyframes ld{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
     iframe{position:fixed;top:0;left:0;width:100%;height:100%;border:none;display:none;z-index:1}
+
+    /* Rooms floating button */
+    .rooms-fab{
+      position:fixed; bottom:20px; right:20px; z-index:50;
+      display:none; /* hidden until authenticated */
+      align-items:center; gap:8px;
+      background:linear-gradient(135deg,#0d9b76,#0a7d5f); color:#fff;
+      padding:12px 18px; border-radius:28px;
+      font-size:14px; font-weight:600; cursor:pointer;
+      box-shadow:0 4px 14px rgba(13,155,118,0.4);
+      transition:transform 0.15s, box-shadow 0.15s;
+      -webkit-tap-highlight-color:transparent;
+      text-decoration:none;
+    }
+    .rooms-fab:active{transform:scale(0.95);}
+    .rooms-fab .fab-icon{font-size:18px;}
+
+    /* Rooms back bar */
+    .rooms-bar{
+      display:none; position:fixed; top:0; left:0; right:0; z-index:60;
+      background:#1e2538; border-bottom:1px solid #2a3450;
+      padding:10px 16px; align-items:center; gap:12px;
+    }
+    .rooms-bar.show{display:flex;}
+    .rooms-back-btn{
+      background:#2a3450; color:#90cdf4; border:none; border-radius:8px;
+      padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer;
+    }
+    .rooms-bar-title{color:#fff; font-size:14px; font-weight:500;}
+
+    /* Rooms iframe */
+    .rooms-frame{
+      position:fixed; top:46px; left:0; right:0; bottom:0; z-index:55;
+      border:none; display:none;
+    }
+    .rooms-frame.show{display:block;}
   </style>
 </head>
 <body>
@@ -50,10 +86,24 @@
     <div class="bar"></div>
   </div>
   <iframe id="f" src="about:blank" allow="clipboard-write"></iframe>
+
+  <!-- Rooms FAB -->
+  <a class="rooms-fab" id="roomsFab" onclick="openRooms()">
+    <span class="fab-icon">🛏️</span> Rooms
+  </a>
+
+  <!-- Rooms overlay -->
+  <div class="rooms-bar" id="roomsBar">
+    <button class="rooms-back-btn" onclick="closeRooms()">← Back</button>
+    <div class="rooms-bar-title">🛏️ Rooms Dashboard</div>
+  </div>
+  <iframe class="rooms-frame" id="roomsFrame" src="about:blank"></iframe>
+
   <script>
     // SET YOUR PIN HERE
     var PIN = '1978';
     var APP_URL = 'https://script.google.com/macros/s/AKfycbxgzF9DVJQ2sBPVGMWCfXsaAn5-3SUzWXuURGbu4lE__ccPowt0vWmQKqY43qtyGXgP/exec';
+    var ROOMS_URL = 'https://owner.kinfoldinns.co.uk/rooms-windmill.html';
 
     if (sessionStorage.getItem('windmill_auth') === 'yes') {
       document.getElementById('login').classList.add('hidden');
@@ -75,11 +125,27 @@
     }
     function loadApp() {
       document.getElementById('loader').classList.remove('hidden');
+      document.getElementById('roomsFab').style.display = 'flex';
       var f = document.getElementById('f');
       f.src = APP_URL;
       f.style.display = 'block';
       f.onload = function() { setTimeout(function(){ document.getElementById('loader').classList.add('hidden'); }, 800); };
       setTimeout(function(){ document.getElementById('loader').classList.add('hidden'); }, 15000);
+    }
+
+    function openRooms() {
+      document.getElementById('roomsFab').style.display = 'none';
+      document.getElementById('roomsBar').classList.add('show');
+      var rf = document.getElementById('roomsFrame');
+      rf.src = ROOMS_URL;
+      rf.classList.add('show');
+    }
+
+    function closeRooms() {
+      document.getElementById('roomsBar').classList.remove('show');
+      document.getElementById('roomsFrame').classList.remove('show');
+      document.getElementById('roomsFrame').src = 'about:blank';
+      document.getElementById('roomsFab').style.display = 'flex';
     }
 
     // Listen for navigation messages from the iframe (Apps Script pages)
