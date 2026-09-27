@@ -1,162 +1,383 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light" data-theme-pref="auto">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#24362c">
   <title>Manager – The Windmill Inn</title>
+  <script src="theme.js"></script>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍺</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-    html,body{height:100%;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif;background:#0f1419;overflow:hidden;-webkit-overflow-scrolling:touch}
-    .login{position:fixed;inset:0;z-index:200;background:linear-gradient(135deg,#1a365d 0%,#2d3748 100%);display:flex;align-items:center;justify-content:center;transition:opacity .5s}
-    .login.hidden{opacity:0;pointer-events:none}
-    .login-card{background:#1e2538;border:1px solid #2a3450;border-radius:16px;padding:40px 32px;width:90%;max-width:360px;text-align:center}
-    .login-card .icon{font-size:48px;margin-bottom:12px}
-    .login-card h1{color:#fff;font-size:22px;font-weight:300;letter-spacing:1px;margin-bottom:4px}
-    .login-card h2{color:#90cdf4;font-size:12px;font-weight:600;letter-spacing:3px;text-transform:uppercase;margin-bottom:28px}
-    .login-card input{width:100%;padding:14px 16px;border-radius:10px;border:1px solid #2a3450;background:#151b2b;color:#fff;font-size:16px;text-align:center;letter-spacing:4px;outline:none;transition:border-color .2s}
-    .login-card input:focus{border-color:#90cdf4}
-    .login-card input::placeholder{letter-spacing:1px;color:#4a5568}
-    .login-btn{width:100%;padding:14px;border:none;border-radius:10px;background:linear-gradient(135deg,#3182ce,#2b6cb0);color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:16px;transition:opacity .2s}
-    .login-btn:hover{opacity:.9}
-    .error{color:#fc8181;font-size:13px;margin-top:12px;display:none}
-    .error.show{display:block}
-    .loader{position:fixed;inset:0;z-index:100;background:linear-gradient(135deg,#1a365d 0%,#2d3748 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s,visibility .6s}
-    .loader.hidden{opacity:0;visibility:hidden;pointer-events:none}
-    .loader-logo{font-size:48px;margin-bottom:16px}
-    .loader h1{color:#fff;font-size:24px;font-weight:300;letter-spacing:2px;margin-bottom:8px}
-    .loader h2{color:#90cdf4;font-size:13px;font-weight:600;letter-spacing:3px;text-transform:uppercase;margin-bottom:32px}
-    .bar{width:200px;height:3px;background:rgba(255,255,255,.15);border-radius:3px;overflow:hidden}
-    .bar::after{content:'';display:block;width:40%;height:100%;background:#90cdf4;border-radius:3px;animation:ld 1.2s ease-in-out infinite}
-    @keyframes ld{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
-    iframe{position:fixed;top:0;left:0;width:100%;height:100%;border:none;display:none;z-index:1}
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --ink: #1c1610;
+      --ink-soft: #3d3429;
+      --cream: #f6f0e6;
+      --paper: #fbf7f0;
+      --rule: #d8cfc0;
+      --brass: #b68a3a;
+      --brass-deep: #8d6824;
+      --forest: #24362c;
+      --forest-mid: #2f4a3b;
+      --rust: #8a3d28;
+      --money: #2d5a3d;
+      --bg: var(--cream);
+      --card: #ffffff;
+      --card-hover: var(--paper);
+      --border: var(--rule);
+      --text: var(--ink);
+      --text-dim: #6f6574;
+      --gold-glow: rgba(182, 138, 58, 0.14);
+      --windmill: #2b6cb0;
+      --btn-on-accent: #fbf7f0;
+    }
+    [data-theme="dark"] {
+      --ink: #f3eadc;
+      --ink-soft: #b1a697;
+      --cream: #121816;
+      --paper: #1a221e;
+      --rule: #3a453c;
+      --brass: #e0b05a;
+      --brass-deep: #e0b05a;
+      --forest: #c5d4a8;
+      --forest-mid: #d8e4bc;
+      --rust: #e07a6a;
+      --money: #8fbf8f;
+      --bg: var(--cream);
+      --card: #1a221e;
+      --card-hover: #24302a;
+      --border: var(--rule);
+      --text: var(--ink);
+      --text-dim: #8a8074;
+      --gold-glow: rgba(224, 176, 90, 0.16);
+      --windmill: #7eb6e8;
+      --btn-on-accent: #121816;
+    }
 
-    /* Rooms floating button */
-    .rooms-fab{
-      position:fixed; bottom:20px; right:20px; z-index:50;
-      display:none; /* hidden until authenticated */
-      align-items:center; gap:8px;
-      background:linear-gradient(135deg,#0d9b76,#0a7d5f); color:#fff;
-      padding:12px 18px; border-radius:28px;
-      font-size:14px; font-weight:600; cursor:pointer;
-      box-shadow:0 4px 14px rgba(13,155,118,0.4);
-      transition:transform 0.15s, box-shadow 0.15s;
-      -webkit-tap-highlight-color:transparent;
-      text-decoration:none;
-    }
-    .rooms-fab:active{transform:scale(0.95);}
-    .rooms-fab .fab-icon{font-size:18px;}
+    html, body { min-height: 100%; font-family: 'Source Sans 3', 'Segoe UI', sans-serif; background: var(--cream); color: var(--ink); }
+    ::selection { color: var(--ink); background: #e6d3a4; }
 
-    /* Rooms back bar */
-    .rooms-bar{
-      display:none; position:fixed; top:0; left:0; right:0; z-index:60;
-      background:#1e2538; border-bottom:1px solid #2a3450;
-      padding:10px 16px; align-items:center; gap:12px;
-    }
-    .rooms-bar.show{display:flex;}
-    .rooms-back-btn{
-      background:#2a3450; color:#90cdf4; border:none; border-radius:8px;
-      padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer;
-    }
-    .rooms-bar-title{color:#fff; font-size:14px; font-weight:500;}
+    .login-overlay { position: fixed; inset: 0; z-index: 300; background: #24362c; display: flex; align-items: center; justify-content: center; transition: opacity .5s; }
+    .login-overlay.hidden { opacity: 0; pointer-events: none; }
+    .login-overlay::before { content: ''; position: absolute; inset: 0; opacity: .3; background: radial-gradient(circle at 80% 10%, #b68a3a, transparent 35%), radial-gradient(circle at 10% 90%, #2f4a3b, transparent 40%); pointer-events: none; }
+    .login-card { position: relative; background: var(--paper); border: 1px solid rgba(246,240,230,0.18); border-radius: 24px; padding: 40px 32px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 24px 60px rgba(12,16,12,0.35); }
+    .login-mark { font-size: 44px; line-height: 1; margin-bottom: 12px; }
+    .login-card h1 { font-family: 'Fraunces', Georgia, serif; font-size: 32px; font-weight: 600; letter-spacing: -0.025em; color: var(--ink); margin-bottom: 6px; }
+    .login-card h2 { font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brass-deep); margin-bottom: 22px; }
+    .login-card input { width: 100%; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--rule); background: #fff; color: var(--ink); font-size: 16px; text-align: center; letter-spacing: 4px; outline: none; transition: border-color .2s; font-family: inherit; }
+    .login-card input:focus { border-color: var(--brass); }
+    .login-card input::placeholder { letter-spacing: 1px; color: #8a8074; }
+    .login-btn { width: 100%; padding: 14px 20px; border: none; border-radius: 999px; background: #24362c; color: #f6f0e6; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 16px; transition: background .15s; font-family: inherit; }
+    .login-btn:hover { background: #2f4a3b; }
+    .error { color: var(--rust); font-size: 13px; margin-top: 12px; display: none; }
+    .error.show { display: block; }
 
-    /* Rooms iframe */
-    .rooms-frame{
-      position:fixed; top:46px; left:0; right:0; bottom:0; z-index:55;
-      border:none; display:none;
+    .landing { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; position: relative; background: var(--cream); }
+    .landing::before { content: ''; position: absolute; inset: 0; background: radial-gradient(900px 420px at 100% 0%, #b68a3a24, transparent 55%), radial-gradient(700px 380px at 0% 80%, #24362c14, transparent 50%); pointer-events: none; }
+    .brand { text-align: center; margin-bottom: 28px; position: relative; }
+    .brand .mark { font-size: 40px; line-height: 1; margin-bottom: 10px; }
+    .brand h1 { font-family: 'Fraunces', Georgia, serif; font-size: 40px; font-weight: 600; letter-spacing: -0.025em; color: var(--ink); margin-bottom: 8px; }
+    .brand p { font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brass-deep); }
+
+    .dept-wrap { max-width: 480px; width: 100%; position: relative; }
+    .pub-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 22px 20px; box-shadow: 0 22px 48px rgba(28,22,16,0.06); }
+    .pub-links { display: flex; flex-direction: column; gap: 10px; }
+    .pub-link { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-radius: 10px; text-decoration: none; color: var(--ink); font-size: 15px; font-weight: 600; transition: all 0.2s; border: 1px solid var(--rule); background: var(--paper); cursor: pointer; }
+    .pub-link:hover { background: #fff; border-color: var(--brass); transform: translateY(-1px); }
+    .pub-link .link-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .pub-link.paperwork .link-icon { background: rgba(245,158,11,0.15); }
+    .pub-link.menus .link-icon { background: var(--gold-glow); }
+    .pub-link.rooms .link-icon { background: rgba(45,212,168,0.15); }
+    .pub-link.cardtakings .link-icon { background: rgba(223,194,175,0.28); }
+    .link-label { flex: 1; }
+    .link-label small { display: block; font-size: 11px; font-weight: 400; color: var(--text-dim); margin-top: 2px; }
+    .link-arrow { color: var(--text-dim); font-size: 18px; }
+
+    .footer { text-align: center; padding: 28px 16px 8px; font-size: 12px; color: var(--text-dim); position: relative; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .sign-out { background: none; border: 1px solid var(--rule); color: var(--ink); padding: 8px 16px; border-radius: 999px; cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit; }
+    .sign-out:hover { border-color: var(--brass); }
+
+    .theme-toggle { display: inline-flex; align-items: center; gap: 2px; padding: 3px; border-radius: 999px; border: 1px solid var(--rule); background: var(--paper); }
+    .theme-toggle button { appearance: none; border: 0; background: transparent; color: var(--ink-soft); font: inherit; font-size: 11px; font-weight: 600; letter-spacing: .02em; padding: 5px 10px; border-radius: 999px; cursor: pointer; line-height: 1; }
+    .theme-toggle button.is-active { background: #24362c; color: var(--btn-on-accent); }
+    .theme-toggle button:focus-visible { outline: 2px solid var(--brass); outline-offset: 1px; }
+    .landing-theme { position: absolute; top: 18px; right: 18px; z-index: 5; }
+
+    [data-theme="dark"] .login-overlay { background: #0c100e; }
+    [data-theme="dark"] .login-card { background: var(--paper); border-color: var(--rule); }
+    [data-theme="dark"] .login-card input { background: var(--cream); color: var(--ink); border-color: var(--rule); }
+    [data-theme="dark"] .login-btn { background: var(--forest); color: var(--btn-on-accent); }
+    [data-theme="dark"] .theme-toggle button.is-active { background: var(--forest); color: var(--btn-on-accent); }
+    [data-theme="dark"] .pub-link:hover { background: var(--card-hover); }
+    [data-theme="dark"] .app-bar { background: rgba(18,24,22,0.92); }
+    [data-theme="dark"] .app-frame { background: var(--paper); }
+
+    .app-view { display: none; position: fixed; inset: 0; z-index: 50; background: var(--cream); flex-direction: column; overflow: hidden; }
+    .app-view.active { display: flex; }
+    .app-bar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: rgba(246,240,230,0.92); border-bottom: 1px solid var(--rule); flex-shrink: 0; backdrop-filter: blur(12px); }
+    .app-bar-wordmark { font-family: 'Fraunces', Georgia, serif; font-size: 20px; font-weight: 600; letter-spacing: -0.025em; color: var(--ink); }
+    .app-bar-back { background: none; border: 1px solid var(--rule); color: var(--ink); padding: 8px 16px; border-radius: 999px; cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit; transition: border-color 0.2s; }
+    .app-bar-back:hover { border-color: var(--brass); }
+    .app-bar-title { font-size: 14px; font-weight: 600; color: var(--ink); }
+    .app-bar-pub { font-size: 12px; color: var(--ink-soft); margin-left: auto; }
+    .app-frame { flex: 1; width: 100%; border: none; background: #fff; }
+    .app-loader { position: absolute; inset: 0; top: 49px; background: var(--cream); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; transition: opacity 0.5s; }
+    .app-loader.hidden { opacity: 0; pointer-events: none; }
+    .spinner { border: 3px solid var(--rule); border-top: 3px solid #24362c; border-radius: 50%; width: 32px; height: 32px; animation: sp 0.8s linear infinite; margin-bottom: 12px; }
+    @keyframes sp { to { transform: rotate(360deg); } }
+    .app-loader p { color: var(--ink-soft); font-size: 13px; }
+
+    @media (max-width: 640px) {
+      .brand h1 { font-size: 32px; }
+      .login-card h1 { font-size: 26px; }
+      .landing { padding: 72px 16px 32px; justify-content: flex-start; }
+      .landing-theme { top: 12px; right: 12px; }
+      .app-bar-wordmark { display: none; }
     }
-    .rooms-frame.show{display:block;}
   </style>
 </head>
 <body>
-  <div class="login" id="login">
+  <div class="login-overlay" id="login">
     <div class="login-card">
-      <div class="icon">🍺</div>
+      <div class="login-mark" aria-hidden="true">🍺</div>
       <h1>The Windmill Inn</h1>
-      <h2>Manager Portal</h2>
-      <input type="password" id="pw" placeholder="Enter PIN" maxlength="6" inputmode="numeric" autocomplete="off">
-      <button class="login-btn" onclick="checkPw()">Sign In</button>
+      <h2>Manager</h2>
+      <input type="password" id="pw" placeholder="Enter PIN" maxlength="6" inputmode="numeric" autocomplete="off" aria-label="PIN">
+      <button type="button" class="login-btn" id="loginBtn" onclick="checkPw()">Sign In</button>
       <div class="error" id="err">Incorrect PIN</div>
     </div>
   </div>
-  <div class="loader hidden" id="loader">
-    <div class="loader-logo">🍺</div>
-    <h1>The Windmill Inn</h1>
-    <h2>Manager Portal</h2>
-    <div class="bar"></div>
-  </div>
-  <iframe id="f" src="about:blank" allow="clipboard-write"></iframe>
 
-  <!-- Rooms FAB -->
-  <a class="rooms-fab" id="roomsFab" onclick="openRooms()">
-    <span class="fab-icon">🛏️</span> Rooms
-  </a>
-
-  <!-- Rooms overlay -->
-  <div class="rooms-bar" id="roomsBar">
-    <button class="rooms-back-btn" onclick="closeRooms()">← Back</button>
-    <div class="rooms-bar-title">🛏️ Rooms Dashboard</div>
+  <div class="landing" id="home" hidden>
+    <div class="landing-theme">
+      <div class="theme-toggle" data-theme-toggle role="group" aria-label="Colour theme">
+        <button type="button" data-theme-set="day" aria-pressed="false">Day</button>
+        <button type="button" data-theme-set="night" aria-pressed="false">Night</button>
+        <button type="button" data-theme-set="auto" aria-pressed="true">Auto</button>
+      </div>
+    </div>
+    <div class="brand">
+      <div class="mark" aria-hidden="true">🍺</div>
+      <h1>The Windmill Inn</h1>
+      <p>Manager · Littleworth</p>
+    </div>
+    <div class="dept-wrap">
+      <div class="pub-card">
+        <div class="pub-links" id="deptList"></div>
+      </div>
+    </div>
+    <div class="footer">
+      <button type="button" class="sign-out" onclick="signOut()">Sign out</button>
+    </div>
   </div>
-  <iframe class="rooms-frame" id="roomsFrame" src="about:blank"></iframe>
+
+  <div class="app-view" id="appView">
+    <div class="app-bar">
+      <span class="app-bar-wordmark">Windmill</span>
+      <button type="button" class="app-bar-back" onclick="closeApp()">← Back</button>
+      <span class="app-bar-title" id="appTitle">Paperwork</span>
+      <span class="app-bar-pub">Littleworth</span>
+      <div class="theme-toggle" data-theme-toggle role="group" aria-label="Colour theme">
+        <button type="button" data-theme-set="day" aria-pressed="false">Day</button>
+        <button type="button" data-theme-set="night" aria-pressed="false">Night</button>
+        <button type="button" data-theme-set="auto" aria-pressed="true">Auto</button>
+      </div>
+    </div>
+    <div class="app-loader hidden" id="appLoader">
+      <div class="spinner"></div>
+      <p>Loading...</p>
+    </div>
+    <iframe class="app-frame" id="appFrame" title="Department" src="about:blank" allow="clipboard-write"></iframe>
+  </div>
 
   <script>
-    // SET YOUR PIN HERE
     var PIN = '1978';
-    var APP_URL = 'https://script.google.com/macros/s/AKfycbxgzF9DVJQ2sBPVGMWCfXsaAn5-3SUzWXuURGbu4lE__ccPowt0vWmQKqY43qtyGXgP/exec';
-    var ROOMS_URL = 'https://owner.kinfoldinns.co.uk/rooms-windmill.html';
+    var DEPTS = [
+      {
+        id: 'paperwork',
+        title: 'Paperwork',
+        icon: '📋',
+        desc: 'Weekly data, cash & expenses',
+        cls: 'paperwork',
+        url: 'https://script.google.com/macros/s/AKfycbxgzF9DVJQ2sBPVGMWCfXsaAn5-3SUzWXuURGbu4lE__ccPowt0vWmQKqY43qtyGXgP/exec'
+      },
+      {
+        id: 'menus',
+        title: 'Menus',
+        icon: '🍽️',
+        desc: 'Change a dish or paste a list',
+        cls: 'menus',
+        url: 'https://owner.kinfoldinns.co.uk/menus.html?mode=staff&venue=windmill&v=20260927-flow96'
+      },
+      {
+        id: 'rooms',
+        title: 'Rooms',
+        icon: '🛏️',
+        desc: 'Occupancy & 14-day calendar',
+        cls: 'rooms',
+        url: 'https://rooms.windmilllittleworth.com'
+      },
+      {
+        id: 'card-takings',
+        title: 'Card Takings',
+        icon: '💳',
+        desc: 'Teya CSV — first & last sale, by machine',
+        cls: 'cardtakings',
+        url: 'https://owner.kinfoldinns.co.uk/card-takings.html?venue=windmill'
+      }
+    ];
 
-    if (sessionStorage.getItem('windmill_auth') === 'yes') {
-      document.getElementById('login').classList.add('hidden');
-      loadApp();
+    var currentId = null;
+
+    function deptById(id) {
+      for (var i = 0; i < DEPTS.length; i++) if (DEPTS[i].id === id) return DEPTS[i];
+      return null;
     }
-    document.getElementById('pw').addEventListener('keydown', function(e) { if (e.key === 'Enter') checkPw(); });
-    document.getElementById('pw').focus();
+
+    function stripOwnerShell(url) {
+      if (!url || typeof url !== 'string') return url;
+      return url
+        .replace(/([?&])shell=owner(&)?/g, function(_, sep, more) { return more ? sep : ''; })
+        .replace(/[?&]$/, '');
+    }
+
+    function renderDepts() {
+      var list = document.getElementById('deptList');
+      list.innerHTML = '';
+      DEPTS.forEach(function(dept) {
+        var a = document.createElement('a');
+        a.className = 'pub-link ' + dept.cls;
+        a.href = dept.url;
+        a.setAttribute('data-dept', dept.id);
+        a.innerHTML = '<span class="link-icon" aria-hidden="true">' + dept.icon + '</span>' +
+          '<span class="link-label">' + dept.title + '<small>' + dept.desc + '</small></span>' +
+          '<span class="link-arrow" aria-hidden="true">›</span>';
+        a.addEventListener('click', function(e) {
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button === 1) return;
+          e.preventDefault();
+          openDept(dept.id);
+        });
+        list.appendChild(a);
+      });
+    }
+
+    function showLogin() {
+      document.getElementById('login').classList.remove('hidden');
+      document.getElementById('home').hidden = true;
+      document.getElementById('appView').classList.remove('active');
+      document.getElementById('pw').focus();
+    }
+
+    function showHome() {
+      document.getElementById('login').classList.add('hidden');
+      document.getElementById('home').hidden = false;
+      document.getElementById('appView').classList.remove('active');
+      currentId = null;
+    }
 
     function checkPw() {
-      if (document.getElementById('pw').value.trim() === PIN) {
+      var input = document.getElementById('pw');
+      if (input.value.trim() === PIN) {
         sessionStorage.setItem('windmill_auth', 'yes');
-        document.getElementById('login').classList.add('hidden');
-        loadApp();
+        input.value = '';
+        document.getElementById('err').classList.remove('show');
+        showHome();
+        history.replaceState({ view: 'home' }, '', '#home');
       } else {
         document.getElementById('err').classList.add('show');
-        document.getElementById('pw').value = '';
-        document.getElementById('pw').focus();
+        input.value = '';
+        input.focus();
       }
     }
-    function loadApp() {
-      document.getElementById('loader').classList.remove('hidden');
-      document.getElementById('roomsFab').style.display = 'flex';
-      var f = document.getElementById('f');
-      f.src = APP_URL;
-      f.style.display = 'block';
-      f.onload = function() { setTimeout(function(){ document.getElementById('loader').classList.add('hidden'); }, 800); };
-      setTimeout(function(){ document.getElementById('loader').classList.add('hidden'); }, 15000);
+
+    function signOut() {
+      sessionStorage.removeItem('windmill_auth');
+      document.getElementById('appFrame').src = 'about:blank';
+      currentId = null;
+      history.replaceState({ view: 'login' }, '', '#');
+      showLogin();
     }
 
-    function openRooms() {
-      document.getElementById('roomsFab').style.display = 'none';
-      document.getElementById('roomsBar').classList.add('show');
-      var rf = document.getElementById('roomsFrame');
-      rf.src = ROOMS_URL;
-      rf.classList.add('show');
+    function openDept(id, opts) {
+      opts = opts || {};
+      if (sessionStorage.getItem('windmill_auth') !== 'yes') return;
+      var dept = deptById(id);
+      if (!dept) return;
+      currentId = id;
+      document.getElementById('appTitle').textContent = dept.icon + ' ' + dept.title;
+      document.getElementById('appLoader').classList.remove('hidden');
+      var frame = document.getElementById('appFrame');
+      var url = stripOwnerShell(dept.url);
+      frame.src = url;
+      frame.onload = function() {
+        setTimeout(function() { document.getElementById('appLoader').classList.add('hidden'); }, 600);
+      };
+      setTimeout(function() { document.getElementById('appLoader').classList.add('hidden'); }, 15000);
+      document.getElementById('home').hidden = true;
+      document.getElementById('login').classList.add('hidden');
+      document.getElementById('appView').classList.add('active');
+      var state = { view: 'app', id: id, url: url };
+      if (opts.replace) history.replaceState(state, '', '#' + id);
+      else history.pushState(state, '', '#' + id);
     }
 
-    function closeRooms() {
-      document.getElementById('roomsBar').classList.remove('show');
-      document.getElementById('roomsFrame').classList.remove('show');
-      document.getElementById('roomsFrame').src = 'about:blank';
-      document.getElementById('roomsFab').style.display = 'flex';
+    function closeApp() {
+      document.getElementById('appFrame').src = 'about:blank';
+      showHome();
+      history.pushState({ view: 'home' }, '', '#home');
     }
 
-    // Listen for navigation messages from the iframe (Apps Script pages)
+    function authed() {
+      return sessionStorage.getItem('windmill_auth') === 'yes';
+    }
+
+    renderDepts();
+    document.getElementById('pw').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') checkPw();
+    });
+
+    if (/(?:^|[?&])page=menu(?:&|$)/.test(location.search)) {
+      history.replaceState({ view: authed() ? 'home' : 'login' }, '', location.pathname + (authed() ? '#home' : ''));
+    }
+
+    if (authed()) {
+      var hashId = String(location.hash || '').replace(/^#/, '');
+      if (deptById(hashId)) openDept(hashId, { replace: true });
+      else {
+        showHome();
+        if (location.hash !== '#home') history.replaceState({ view: 'home' }, '', '#home');
+      }
+    } else {
+      showLogin();
+    }
+
     window.addEventListener('message', function(e) {
-      if (e.data && e.data.type === 'navigate' && e.data.url) {
-        var f = document.getElementById('f');
-        document.getElementById('loader').classList.remove('hidden');
-        f.src = e.data.url;
-        f.onload = function() { setTimeout(function(){ document.getElementById('loader').classList.add('hidden'); }, 800); };
-        setTimeout(function(){ document.getElementById('loader').classList.add('hidden'); }, 15000);
+      if (!e.data || e.data.type !== 'navigate' || !e.data.url) return;
+      if (!authed() || !currentId) return;
+      var nextUrl = stripOwnerShell(e.data.url);
+      var frame = document.getElementById('appFrame');
+      var loader = document.getElementById('appLoader');
+      loader.classList.remove('hidden');
+      frame.src = nextUrl;
+      frame.onload = function() { setTimeout(function() { loader.classList.add('hidden'); }, 600); };
+      setTimeout(function() { loader.classList.add('hidden'); }, 15000);
+    });
+
+    window.addEventListener('popstate', function(event) {
+      if (!authed()) {
+        showLogin();
+        return;
       }
+      var state = event.state;
+      var hashId = String(location.hash || '').replace(/^#/, '');
+      var id = (state && state.view === 'app' && state.id) || (deptById(hashId) ? hashId : '');
+      if (id && deptById(id)) {
+        openDept(id, { replace: true });
+        return;
+      }
+      document.getElementById('appFrame').src = 'about:blank';
+      showHome();
     });
   </script>
 </body>
