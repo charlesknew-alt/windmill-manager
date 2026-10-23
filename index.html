@@ -90,6 +90,7 @@
     .pub-link.menus .link-icon { background: var(--gold-glow); }
     .pub-link.rooms .link-icon { background: rgba(45,212,168,0.15); }
     .pub-link.cardtakings .link-icon { background: rgba(223,194,175,0.28); }
+    .pub-link.pricing .link-icon { background: rgba(45, 90, 61, 0.12); }
     .pub-link.giftcards .link-icon { background: rgba(182, 138, 58, 0.18); }
     .link-label { flex: 1; }
     .link-label small { display: block; font-size: 11px; font-weight: 400; color: var(--text-dim); margin-top: 2px; }
@@ -228,6 +229,15 @@
         url: 'https://owner.kinfoldinns.co.uk/card-takings.html?venue=windmill'
       },
       {
+        id: 'pricing',
+        title: 'Drink Pricing',
+        icon: '🍺',
+        desc: 'Bar sell prices',
+        cls: 'pricing',
+        url: 'https://app.varlo.co.uk/drinks-pricing?pub=Windmill%20Inn',
+        top: true
+      },
+      {
         id: 'gift-cards',
         title: 'Gift cards',
         icon: '🎁',
@@ -313,6 +323,10 @@
       if (sessionStorage.getItem('windmill_auth') !== 'yes') return;
       var dept = deptById(id);
       if (!dept) return;
+      if (dept.top) {
+        window.location.href = dept.url;
+        return;
+      }
       currentId = id;
       document.getElementById('appTitle').textContent = dept.icon + ' ' + dept.title;
       document.getElementById('appLoader').classList.remove('hidden');
