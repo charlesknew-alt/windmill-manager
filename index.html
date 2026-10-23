@@ -234,8 +234,7 @@
         icon: '🍺',
         desc: 'Bar sell prices',
         cls: 'pricing',
-        url: 'https://app.varlo.co.uk/drinks-pricing?pub=Windmill%20Inn',
-        top: true
+        url: 'https://app.varlo.co.uk/drinks-pricing?embed=1&portal=windmill&pub=Windmill%20Inn'
       },
       {
         id: 'gift-cards',
@@ -323,15 +322,15 @@
       if (sessionStorage.getItem('windmill_auth') !== 'yes') return;
       var dept = deptById(id);
       if (!dept) return;
-      if (dept.top) {
-        window.location.href = dept.url;
-        return;
-      }
       currentId = id;
       document.getElementById('appTitle').textContent = dept.icon + ' ' + dept.title;
       document.getElementById('appLoader').classList.remove('hidden');
       var frame = document.getElementById('appFrame');
       var url = stripOwnerShell(dept.url);
+      if (dept.id === 'pricing') {
+        var theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+        url += (url.indexOf('?') >= 0 ? '&' : '?') + 'theme=' + theme;
+      }
       frame.src = url;
       frame.onload = function() {
         setTimeout(function() { document.getElementById('appLoader').classList.add('hidden'); }, 600);
