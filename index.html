@@ -210,7 +210,7 @@
         icon: '🍽️',
         desc: 'Change a dish or paste a list',
         cls: 'menus',
-        url: 'https://owner.kinfoldinns.co.uk/menus.html?mode=staff&venue=windmill&v=20260927-flow96'
+        url: 'https://www.eightbellsbolney.com/manager/windmill/menus'
       },
       {
         id: 'rooms',
@@ -322,6 +322,11 @@
       if (sessionStorage.getItem('windmill_auth') !== 'yes') return;
       var dept = deptById(id);
       if (!dept) return;
+      // Menus: leave the hub (same tab) — destination has its own server sign-in.
+      if (dept.id === 'menus') {
+        location.assign(dept.url);
+        return;
+      }
       currentId = id;
       document.getElementById('appTitle').textContent = dept.icon + ' ' + dept.title;
       document.getElementById('appLoader').classList.remove('hidden');
@@ -360,10 +365,8 @@
     });
 
     if (/(?:^|[?&])page=menu(?:&|$)/.test(location.search)) {
-      history.replaceState({ view: authed() ? 'home' : 'login' }, '', location.pathname + (authed() ? '#home' : ''));
-    }
-
-    if (authed()) {
+      location.replace(deptById('menus').url);
+    } else if (authed()) {
       var hashId = String(location.hash || '').replace(/^#/, '');
       if (deptById(hashId)) openDept(hashId, { replace: true });
       else {
