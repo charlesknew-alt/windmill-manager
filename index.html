@@ -247,6 +247,8 @@
     ];
 
     var currentId = null;
+    // Typed PIN kept in memory only for website hand-off; never persisted.
+    var rememberedPin = null;
 
     function deptById(id) {
       for (var i = 0; i < DEPTS.length; i++) if (DEPTS[i].id === id) return DEPTS[i];
@@ -258,6 +260,35 @@
       return url
         .replace(/([?&])shell=owner(&)?/g, function(_, sep, more) { return more ? sep : ''; })
         .replace(/[?&]$/, '');
+    }
+
+    function leaveViaHandoffOrAssign(url, replace) {
+      if (rememberedPin) {
+        try {
+          var dest = new URL(url, location.href);
+          if (dest.origin === 'https://www.eightbellsbolney.com' &&
+              dest.pathname.indexOf('/manager/') === 0) {
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'https://www.eightbellsbolney.com/api/manager/handoff';
+            function hiddenField(name, value) {
+              var input = document.createElement('input');
+              input.type = 'hidden';
+              input.name = name;
+              input.value = value;
+              form.appendChild(input);
+            }
+            hiddenField('pub', 'windmill');
+            hiddenField('pin', rememberedPin);
+            hiddenField('next', dest.pathname + dest.search);
+            document.body.appendChild(form);
+            form.submit();
+            return;
+          }
+        } catch (e) { /* fall through to assign/replace */ }
+      }
+      if (replace) location.replace(url);
+      else location.assign(url);
     }
 
     function renderDepts() {
@@ -296,7 +327,9 @@
 
     function checkPw() {
       var input = document.getElementById('pw');
-      if (input.value.trim() === PIN) {
+      var typed = input.value.trim();
+      if (typed === PIN) {
+        rememberedPin = typed;
         sessionStorage.setItem('windmill_auth', 'yes');
         input.value = '';
         document.getElementById('err').classList.remove('show');
@@ -310,6 +343,7 @@
     }
 
     function signOut() {
+      rememberedPin = null;
       sessionStorage.removeItem('windmill_auth');
       document.getElementById('appFrame').src = 'about:blank';
       currentId = null;
@@ -322,9 +356,9 @@
       if (sessionStorage.getItem('windmill_auth') !== 'yes') return;
       var dept = deptById(id);
       if (!dept) return;
-      // Menus / Card Takings / Rooms: leave the hub (same tab) — destination has its own server sign-in.
+      // Menus / Card Takings / Rooms: leave the hub (same tab) — hand off PIN when held in memory.
       if (dept.id === 'menus' || dept.id === 'card-takings' || dept.id === 'rooms') {
-        location.assign(dept.url);
+        leaveViaHandoffOrAssign(dept.url, false);
         return;
       }
       currentId = id;
@@ -365,7 +399,7 @@
     });
 
     if (/(?:^|[?&])page=menu(?:&|$)/.test(location.search)) {
-      location.replace(deptById('menus').url);
+      leaveViaHandoffOrAssign(deptById('menus').url, true);
     } else if (authed()) {
       var hashId = String(location.hash || '').replace(/^#/, '');
       if (deptById(hashId)) openDept(hashId, { replace: true });
