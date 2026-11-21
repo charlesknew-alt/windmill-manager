@@ -218,7 +218,7 @@
         icon: '🛏️',
         desc: 'Occupancy & 14-day calendar',
         cls: 'rooms',
-        url: 'https://rooms.windmilllittleworth.com'
+        url: 'https://www.eightbellsbolney.com/manager/windmill/rooms'
       },
       {
         id: 'card-takings',
@@ -322,8 +322,8 @@
       if (sessionStorage.getItem('windmill_auth') !== 'yes') return;
       var dept = deptById(id);
       if (!dept) return;
-      // Menus / Card Takings: leave the hub (same tab) — destination has its own server sign-in.
-      if (dept.id === 'menus' || dept.id === 'card-takings') {
+      // Menus / Card Takings / Rooms: leave the hub (same tab) — destination has its own server sign-in.
+      if (dept.id === 'menus' || dept.id === 'card-takings' || dept.id === 'rooms') {
         location.assign(dept.url);
         return;
       }
