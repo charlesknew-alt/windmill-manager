@@ -226,7 +226,7 @@
         icon: '💳',
         desc: 'Teya CSV — first & last sale, by machine',
         cls: 'cardtakings',
-        url: 'https://owner.kinfoldinns.co.uk/card-takings.html?venue=windmill'
+        url: 'https://www.eightbellsbolney.com/manager/windmill/card-takings'
       },
       {
         id: 'pricing',
@@ -322,8 +322,8 @@
       if (sessionStorage.getItem('windmill_auth') !== 'yes') return;
       var dept = deptById(id);
       if (!dept) return;
-      // Menus: leave the hub (same tab) — destination has its own server sign-in.
-      if (dept.id === 'menus') {
+      // Menus / Card Takings: leave the hub (same tab) — destination has its own server sign-in.
+      if (dept.id === 'menus' || dept.id === 'card-takings') {
         location.assign(dept.url);
         return;
       }
