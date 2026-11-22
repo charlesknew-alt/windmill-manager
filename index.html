@@ -247,8 +247,30 @@
     ];
 
     var currentId = null;
-    // Typed PIN kept in memory only for website hand-off; never persisted.
+    // PIN for website hand-off. Survives same-tab reload in sessionStorage
+    // (windmill_hub_pin); cleared on sign-out. A new tab / new session has
+    // empty sessionStorage, so the manager must type the PIN again.
     var rememberedPin = null;
+    var HUB_PIN_KEY = 'windmill_hub_pin';
+
+    function readStoredHubPin() {
+      try {
+        return sessionStorage.getItem(HUB_PIN_KEY) || null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function storeHubPin(pin) {
+      try {
+        if (pin) sessionStorage.setItem(HUB_PIN_KEY, pin);
+        else sessionStorage.removeItem(HUB_PIN_KEY);
+      } catch (e) { /* private mode / blocked storage */ }
+    }
+
+    function restoreRememberedPin() {
+      rememberedPin = readStoredHubPin();
+    }
 
     function deptById(id) {
       for (var i = 0; i < DEPTS.length; i++) if (DEPTS[i].id === id) return DEPTS[i];
@@ -331,6 +353,7 @@
       if (typed === PIN) {
         rememberedPin = typed;
         sessionStorage.setItem('windmill_auth', 'yes');
+        storeHubPin(typed);
         input.value = '';
         document.getElementById('err').classList.remove('show');
         showHome();
@@ -344,6 +367,7 @@
 
     function signOut() {
       rememberedPin = null;
+      storeHubPin(null);
       sessionStorage.removeItem('windmill_auth');
       document.getElementById('appFrame').src = 'about:blank';
       currentId = null;
@@ -356,7 +380,7 @@
       if (sessionStorage.getItem('windmill_auth') !== 'yes') return;
       var dept = deptById(id);
       if (!dept) return;
-      // Menus / Card Takings / Rooms: leave the hub (same tab) — hand off PIN when held in memory.
+      // Menus / Card Takings / Rooms: leave the hub (same tab) — hand off PIN when available.
       if (dept.id === 'menus' || dept.id === 'card-takings' || dept.id === 'rooms') {
         leaveViaHandoffOrAssign(dept.url, false);
         return;
@@ -397,6 +421,8 @@
     document.getElementById('pw').addEventListener('keydown', function(e) {
       if (e.key === 'Enter') checkPw();
     });
+
+    if (authed()) restoreRememberedPin();
 
     if (/(?:^|[?&])page=menu(?:&|$)/.test(location.search)) {
       leaveViaHandoffOrAssign(deptById('menus').url, true);
