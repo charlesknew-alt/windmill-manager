@@ -194,7 +194,29 @@
   </div>
 
   <script>
-    var PIN = '1978';
+    // Door code is checked on app.varlo.co.uk. It is not stored in this page.
+    var DOOR_API = 'https://app.varlo.co.uk/api/portal-door';
+    var DOOR_GATE = 'windmill';
+    function doorCall(body) {
+      var url = DOOR_API + (body ? '' : ('?gate=' + encodeURIComponent(DOOR_GATE)));
+      return fetch(url, {
+        method: body ? 'POST' : 'GET',
+        credentials: 'include',
+        headers: body ? { 'Content-Type': 'application/json' } : {},
+        body: body ? JSON.stringify(body) : undefined
+      }).then(function(res) {
+        return res.json().then(function(data) {
+          data = data || {};
+          data.status = res.status;
+          return data;
+        });
+      });
+    }
+    function doorFailText(door) {
+      if (door && door.configured === false) return 'This door code is not set up yet.';
+      if (door && door.status === 429) return 'Too many tries. Wait a few minutes.';
+      return 'Incorrect PIN';
+    }
     var DEPTS = [
       {
         id: 'paperwork',
@@ -328,23 +350,36 @@
     function checkPw() {
       var input = document.getElementById('pw');
       var typed = input.value.trim();
-      if (typed === PIN) {
-        rememberedPin = typed;
-        sessionStorage.setItem('windmill_auth', 'yes');
-        input.value = '';
-        document.getElementById('err').classList.remove('show');
-        showHome();
-        history.replaceState({ view: 'home' }, '', '#home');
-      } else {
-        document.getElementById('err').classList.add('show');
+      var err = document.getElementById('err');
+      if (!typed) {
+        err.textContent = 'Enter a PIN';
+        err.classList.add('show');
+        return;
+      }
+      err.classList.remove('show');
+      doorCall({ gate: DOOR_GATE, pin: typed }).then(function(door) {
+        if (door && door.ok && door.unlocked) {
+          rememberedPin = typed;
+          sessionStorage.setItem('windmill_auth', 'yes');
+          input.value = '';
+          showHome();
+          history.replaceState({ view: 'home' }, '', '#home');
+          return;
+        }
+        err.textContent = doorFailText(door);
+        err.classList.add('show');
         input.value = '';
         input.focus();
-      }
+      }).catch(function() {
+        err.textContent = 'Cannot reach the door. Try again in a moment.';
+        err.classList.add('show');
+      });
     }
 
     function signOut() {
       rememberedPin = null;
       sessionStorage.removeItem('windmill_auth');
+      doorCall({ gate: DOOR_GATE, logout: true }).catch(function() {});
       document.getElementById('appFrame').src = 'about:blank';
       currentId = null;
       history.replaceState({ view: 'login' }, '', '#');
@@ -398,6 +433,7 @@
       if (e.key === 'Enter') checkPw();
     });
 
+    function startWindmill() {
     if (/(?:^|[?&])page=menu(?:&|$)/.test(location.search)) {
       leaveViaHandoffOrAssign(deptById('menus').url, true);
     } else if (authed()) {
@@ -410,6 +446,16 @@
     } else {
       showLogin();
     }
+    }
+    doorCall().then(function(door) {
+      if (door && door.unlocked) sessionStorage.setItem('windmill_auth', 'yes');
+      else if (door && door.configured === false) {
+        sessionStorage.removeItem('windmill_auth');
+        var err = document.getElementById('err');
+        if (err) { err.textContent = doorFailText(door); err.classList.add('show'); }
+      }
+      startWindmill();
+    }).catch(function() { startWindmill(); });
 
     window.addEventListener('message', function(e) {
       if (!e.data || e.data.type !== 'navigate' || !e.data.url) return;
