@@ -202,7 +202,7 @@
         icon: '📋',
         desc: 'Weekly data, cash & expenses',
         cls: 'paperwork',
-        url: 'https://script.google.com/macros/s/AKfycbxgzF9DVJQ2sBPVGMWCfXsaAn5-3SUzWXuURGbu4lE__ccPowt0vWmQKqY43qtyGXgP/exec'
+        url: 'https://www.eightbellsbolney.com/manager/windmill/paperwork'
       },
       {
         id: 'menus',
@@ -356,8 +356,8 @@
       if (sessionStorage.getItem('windmill_auth') !== 'yes') return;
       var dept = deptById(id);
       if (!dept) return;
-      // Menus / Card Takings / Rooms: leave the hub (same tab) — hand off PIN when held in memory.
-      if (dept.id === 'menus' || dept.id === 'card-takings' || dept.id === 'rooms') {
+      // Menus / Card Takings / Rooms / Paperwork: leave the hub (same tab) — hand off PIN when held in memory.
+      if (dept.id === 'menus' || dept.id === 'card-takings' || dept.id === 'rooms' || dept.id === 'paperwork') {
         leaveViaHandoffOrAssign(dept.url, false);
         return;
       }
